@@ -1,0 +1,170 @@
+<?php
+    session_start();
+    require ('Connection.php');
+    $background = "http://localhost/Assignment1/images/network.jpg";
+    if(isset($_REQUEST['LogIN']))
+    {
+        header("location:index.php");
+    }
+    
+   $FnameErr = $LnameErr = $AgeErr = $AddressErr = $ZipCodeErr = $PhoneNumberErr = $EmailErr = "";
+   
+   $firstname = $lastname = $age= $address = $zipcode = $phonenumber = $email = "";
+   
+   if(isset($_REQUEST['submit']))
+   {
+                $check2 = 0;
+                $name = $_FILES["photo"]["name"];
+                $size = $_FILES["photo"]["size"];
+                $type = $_FILES["photo"]["type"];
+                $tmp_name = $_FILES["photo"]["tmp_name"];
+               //$error = $_FILES["file"]["error"];
+                $check  = 0;
+                $targetDir = "uploads/";
+                $filepath = $targetDir.$name;
+                $pic = ($_FILES['photo']['name']);
+                
+                if($_POST['firstname']=="" || !preg_match("/^[a-zA-Z ]*$/",  $_POST['firstname'])){
+                    echo "Please enter valid first name.";
+                    $check2=1;
+                    
+                }
+                else if($_POST['lastname']=="" || !preg_match("/^[a-zA-Z ]*$/",$_POST['lastname'])){
+                    echo "Please enter valid last name.";
+                    $check2=2;  
+                }
+                else if($_POST['age'] == "" || is_numeric($_POST['age']) == FALSE || strlen($_POST['age'])>3 ){
+                    echo "please enter valid age";
+                    $check2=3;
+                }
+                else if($_POST['address']=="" || strlen($_POST['address'])>150){
+                    echo"Please enter valid address";
+                    $check2=4;
+                }
+                else if(strlen($_POST['zipcode'])>6 || is_numeric($_POST['zipcode'])==FALSE || $_POST['zipcode']==""){
+                    echo "Please enter valid zip code.";
+                    $check2=5;
+                }
+                else if(strlen($_POST['phonenumber'])>10 || is_numeric($_POST['phonenumber'])==FALSE || $_POST['phonenumber']==""){
+                    echo "Please enter valid phone number.";
+                    $check=6;
+                }
+                else if($_POST['email']=="" || !preg_match("/^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$/i", $_POST['email'])){
+                    echo "Please enter valid email address";
+                    $check2=7;
+                }
+                else if($_POST["password"] != $_POST["confirm_password"] || $_POST['password'] == "" || $_POST['confirm_password'] == ""){
+                    echo "Please enter valid password!";
+                    $check2 = 8;
+                }
+                else if(empty($name) || file_exists($name)|| $size>2091752){
+                    echo"Please upload valid file.";
+                    $check2=9;
+                }
+                else if($check2===0){
+                    $result = move_uploaded_file($tmp_name, $targetDir.$name);
+                    if($result==TRUE){
+                        @mysql_query(
+                             "INSERT INTO user_details (
+                                                           User_Id ,
+                                                           FirstName ,
+                                                           LastName  ,
+                                                           Age ,
+                                                           Address ,
+                                                           ZipCode ,
+                                                           PhoneNumber ,
+                                                           EmailId ,
+                                                           Password ,
+                                                           Confirm_Paaword,
+                                                           IMAGE
+                                                       )
+                             VALUES (
+                             NULL , 
+                             '$_REQUEST[firstname]', 
+                             '$_REQUEST[lastname]', 
+                             '$_REQUEST[age]', 
+                             '$_REQUEST[address]', 
+                             '$_REQUEST[zipcode]',
+                             '$_REQUEST[phonenumber]',
+                             '$_REQUEST[email]',
+                             '$_REQUEST[password]',
+                             '$_REQUEST[confirm_password]',
+                             '$pic'
+                                    )"
+                             ) or die(mysql_error());
+                             
+                            //$execute = mysql_query($registeration)or die(mysql_error());            
+                            header('location:index.php');
+                 }
+                 else
+                 {
+                     echo "Sorry some error occured. Please try again";
+                     header('location:Registeration.php');
+                 }
+                }  
+   } 
+?>
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Register</title>
+        
+    </head>
+    <body style="background-image: url('<?php echo $background ?>')">
+        <style>
+            h1{
+                text-align: left;
+            }
+        </style>    
+        <h1 > Please Register Here!</h1>
+        <h3 style="color: red;"> All fields are required!</h3>
+        <form method="POST" action="" enctype="multipart/form-data" 
+              style="text-align: left; color: blue; font-family: serif; font-size: 16px;">
+            
+            First Name: <input type = "text" name = "firstname" id="firstname" size="20">
+            <span class="error">* <?php echo $FnameErr;?></span>
+            <br><br>
+            
+            Last Name: <input type = "text" name = "lastname" id="lastname" size="20">
+            <span class="error">* <?php echo $LnameErr;?></span>
+            <br><br>
+            
+            Age: <input type="text" name = "age" id="age" size="3">
+            <span class="error">* <?php echo $AgeErr;?></span>
+            <br><br>      
+            
+            Address: <textarea name = "address" rows="5" cols="40" id="address" > </textarea>
+            <span class="error">* <?php echo $AddressErr;?></span>
+            <br><br>
+            
+        
+            Zip Code: <input type = "text" name = "zipcode" id="zipcode" size="6">
+            <span class="error">* <?php echo $ZipCodeErr;?></span>
+            <br><br>
+            
+            Phone Number: <input type = "text" name = "phonenumber" id="phonenumber" size="10">
+            <span class="error">* <?php echo $PhoneNumberErr;?></span>
+            <br><br>
+            
+            Email: <input type ="text" name = "email" id="email" size="30">
+            <span class="error">* <?php echo $EmailErr;?></span>
+            <br><br>
+            
+            Password: <input type="password" name ="password" id="password" size="16">
+            <span class="error">*</span>
+            <br><br>
+            Confirm Password: <input type="password" name="confirm_password" id="confirm_password" size="16">
+            <span class="error">*</span>  
+            <br><br>
+            Please upload the profile picture:<br> <input type="file" name="photo">
+            <input type="submit" name="submit" id="submit" value="Submit">
+           <!-- <input type="submit" name="submit" value="Upload Image">-->
+            <br><br>
+            <h1> Go back to log in Page.</h1>
+            <button type="submit" name = "LogIN" id = "LogIN" value="Log IN">Log IN</button>
+           
+        </form>
+    </body>
+</html>
