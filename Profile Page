@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        
+        <form method="POST" action="" enctype="multipart/form-data">            
+         <?php
+            //echo "Welcome!"."</br></br>";
+            session_start();
+            require ('Connection.php');
+            $background = "http://localhost/Assignment1/images/network.jpg";
+             if(isset($_REQUEST['UpdateProfile']))
+                {
+                    header('location:UpdateProfile.php');
+                }
+                
+            $retrive = "SELECT * FROM user_details where  User_Id =".$_SESSION['User_Id'];
+            $check1 = mysql_query($retrive) or die(mysql_error());
+
+            while($row = mysql_fetch_assoc($check1))
+            {
+                echo "<tr>";
+                echo "<td><img src='uploads/$row[IMAGE]' height='300px' width='300px'></td>";
+                echo "<br><br> Name: $row[FirstName] $row[LastName]";
+                echo "<br><br> Age: $row[Age]";
+                echo "<br><br> Address: $row[Address]";
+                echo "<br><br> Zip Code: $row[ZipCode]";
+                echo "<br><br> Phone Number: $row[PhoneNumber]";
+                echo "<br><br> Email Id: $row[EmailId]";
+                echo "</tr>\n";
+                echo "<br><br>";
+            }
+                    if(isset($_REQUEST['logout']))
+                        {
+                            session_start();
+                            session_destroy();
+                            header('location:index.php');
+                        }        
+            ?>
+                
+            <style>
+                body
+                {
+                    background-image: url('<?php echo $background ?>');
+                }
+            </style>
+            <input type="submit" name="logout" id="logout" value="Log Out">
+            <input type="submit" name="UpdateProfile" id="UpdateProfile" value="Update Profile">
+               
+         </form>
+        
+    </body>
+</html>
+
