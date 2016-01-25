@@ -1,0 +1,18 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+
+$Database = "social network";
+
+@mysql_connect($servername, $username, $password);
+@mysql_select_db($Database);
+/*if(@mysql_connect($servername, $username, $password) && @mysql_select_db($Database))
+{   
+        echo "Your database has been connected to the server!";
+    
+}*/
+
+
+ 
+?>
