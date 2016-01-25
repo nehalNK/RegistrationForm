@@ -1,0 +1,141 @@
+<?php
+    session_start();
+    require ('Connection.php');
+    $background = "http://localhost/Assignment1/images/network.jpg";
+    if(isset($_REQUEST['Profile']))
+    {
+        header('location: Welcome.php');
+    }
+    $uId = $_SESSION['User_Id'];
+    
+   $FnameErr = $LnameErr = $AgeErr = $AddressErr = $ZipCodeErr = $PhoneNumberErr = $EmailErr = "";
+   
+   $firstname = $lastname = $age= $address = $zipcode = $phonenumber = $email = "";
+   
+   if(isset($_REQUEST['save']))
+   {
+                
+                $check2 = 0;
+                $name = $_FILES["photo"]["name"];
+                $size = $_FILES["photo"]["size"];
+                $type = $_FILES["photo"]["type"];
+                $tmp_name = $_FILES["photo"]["tmp_name"];
+               //$error = $_FILES["file"]["error"];
+                $check  = 0;
+                $targetDir = "uploads/";
+                $filepath = $targetDir.$name;
+                $pic = ($_FILES['photo']['name']);
+                
+                if($_POST['firstname']=="" || !preg_match("/^[a-zA-Z ]*$/",  $_POST['firstname'])){
+                    echo "Please enter valid first name.";
+                    $check2=1;
+                    
+                }
+                else if($_POST['lastname']=="" || !preg_match("/^[a-zA-Z ]*$/",$_POST['lastname'])){
+                    echo "Please enter valid last name.";
+                    $check2=2;  
+                }
+                else if($_POST['age'] == "" || is_numeric($_POST['age']) == FALSE || strlen($_POST['age'])>3 ){
+                    echo "please enter valid age";
+                    $check2=3;
+                }
+                else if($_POST['address']=="" || strlen($_POST['address'])>150){
+                    echo"Please enter valid address";
+                    $check2=4;
+                }
+                else if(strlen($_POST['zipcode'])>6 || is_numeric($_POST['zipcode'])==FALSE || $_POST['zipcode']==""){
+                    echo "Please enter valid zip code.";
+                    $check2=5;
+                }
+                else if(strlen($_POST['phonenumber'])>10 || is_numeric($_POST['phonenumber'])==FALSE || $_POST['phonenumber']==""){
+                    echo "Please enter valid phone number.";
+                    $check=6;
+                }
+                else if($_POST['email']=="" || !preg_match("/^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$/i", $_POST['email'])){
+                    echo "Please enter valid email address";
+                    $check2=7;
+                }
+                else if(file_exists($name)|| $size>2091752){
+                    echo"Please upload valid file.";
+                    $check2=9;
+                }
+                else if($check2===0)
+                {
+                        $result = move_uploaded_file($tmp_name, $targetDir.$name);
+                        if($result === TRUE || $check2===0){
+                            mysql_query("UPDATE user_details SET FirstName = '$_REQUEST[firstname]', LastName = '$_REQUEST[lastname]', Age = '$_REQUEST[age]', Address = '$_REQUEST[address]', ZipCode = '$_REQUEST[zipcode]',PhoneNumber = '$_REQUEST[phonenumber]', EmailId = '$_REQUEST[email]', IMAGE = '$pic' WHERE User_Id= '$uId'") or die(mysql_error());
+                             
+                            //$execute = mysql_query($registeration)or die(mysql_error());            
+                            header('location:Welcome.php');
+                        }
+                    
+                }
+                else
+                {
+                     echo "Sorry some error occured. Please try again";
+                     header('location:UpdateProfile.php');
+                }
+   } 
+   
+   
+    $getDetails = "SELECT * FROM user_details where User_Id = $_SESSION[User_Id]";
+    $getDetailsquery = mysql_query($getDetails) or die(mysql_error());
+    $fetchdetails = mysql_fetch_array($getDetailsquery);
+   
+?>
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Register</title>
+        
+    </head>
+    <body style="background-image: url('<?php echo $background ?>')">
+        <style>
+            h1{
+                text-align: left;
+            }
+        </style>    
+        <h1 > Please Update your profile!</h1>
+        <h3 style="color: red;"> All fields are required!</h3>
+        <form method="POST" action="" enctype="multipart/form-data" 
+              style="text-align: left; color: blue; font-family: serif; font-size: 16px;">
+            
+            First Name: <input type = "text" name = "firstname" id="firstname" value="<?php echo "$fetchdetails[FirstName]";?>" size="20">
+            <span class="error">* <?php echo $FnameErr;?></span>
+            <br><br>
+            
+            Last Name: <input type = "text" name = "lastname" id="lastname" value="<?php echo "$fetchdetails[LastName]";?>" size="20">
+            <span class="error">* <?php echo $LnameErr;?></span>
+            <br><br>
+            
+            Age: <input type="text" name = "age" id="age" value="<?php echo "$fetchdetails[Age]";?>" size="3">
+            <span class="error">* <?php echo $AgeErr;?></span>
+            <br><br>      
+            
+            Address: <textarea name = "address" rows="5" cols="40" id="address" ><?php echo "$fetchdetails[Address]"; ?> </textarea>
+            <span class="error">* <?php echo $AddressErr;?></span>
+            <br><br>
+            
+        
+            Zip Code: <input type = "text" name = "zipcode" id="zipcode" value="<?php echo "$fetchdetails[ZipCode]";?>" size="6">
+            <span class="error">* <?php echo $ZipCodeErr;?></span>
+            <br><br>
+            
+            Phone Number: <input type = "text" name = "phonenumber" id="phonenumber" value="<?php echo "$fetchdetails[PhoneNumber]";?>" size="10">
+            <span class="error">* <?php echo $PhoneNumberErr;?></span>
+            <br><br>
+            
+            Email: <input type ="text" name = "email" id="email" value="<?php echo "$fetchdetails[EmailId]";?>" size="30">
+            <span class="error">* <?php echo $EmailErr;?></span>
+            <br><br>
+            
+            Update Profile Pic: <input type="file" name="photo" <?php echo "$fetchdetails[IMAGE]";?> >
+             <br><br>
+            <input type="submit" name="save" id="save" value="Save">
+            <input type="submit" name="Profile" id="Profile" value="Profile Page">
+        </form>
+    </body>
+</html>
