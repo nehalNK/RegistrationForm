@@ -1,0 +1,63 @@
+<?php
+    session_start();
+    require ('Connection.php');
+    $background = "http://localhost/Assignment1/images/network.jpg";
+    if(isset($_REQUEST['register']))
+    {
+        header('location:Registeration.php');
+    }
+    
+    if(!isset($_SESSION['User_Id']))
+    {
+        header('index.php');
+    }    
+?>
+
+<!DOCTYPE html>
+<html>
+    <head >
+        <meta charset="UTF-8">
+        <title>Log In</title>
+        
+    </head>
+    <body style="background-image: url('<?php echo $background ?>'); font-family: Times; color: solid black; font-size: 16px; text-align: center">
+        
+       
+        <h1> Please Log IN</h1>
+        <br>
+        <form style="text-align: center;">
+            
+            Email: <input type = "text" name = "email" id="email"><br><br>
+            Password: <input type = "password" name = "password" id="password"><br><br>
+             <?php 
+                if(isset($_REQUEST['LogIN']))
+                      {
+                          $check = "select * from user_details where EmailId = '$_REQUEST[email]' and Password = '$_REQUEST[password]'";
+                          $execute = mysql_query($check)or die(mysql_error());
+                          $fetch = mysql_fetch_array($execute);
+                          $row = mysql_num_rows($execute);
+                       //   echo"Hello";
+                         
+                          if($row > 0)
+                          {
+                            $_SESSION['User_Id'] = $fetch['User_Id'];   
+                            $_SESSION['username'] = $fetch['EmailId']; 
+                            
+                            header('location:Welcome.php');  
+                          }
+                          else
+                           {
+                                $error = "Invalid Email id or Password";
+                                echo "$error</br>";
+                          
+                            } 
+                      }
+                         
+             ?>
+            <input type="submit" name="LogIN" id="LogIN" value="Log In">
+            <br><br>
+            <h3> New User? Please Register!</h3>
+            <input type="submit" name="register" id="register" value="Register">
+        </form>
+    </body>
+</html>
